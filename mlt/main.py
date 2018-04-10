@@ -23,10 +23,11 @@ Usage:
   mlt (-h | --help)
   mlt --version
   mlt init [--template=<template> --template-repo=<repo>]
-      [--registry=<registry> --namespace=<namespace>] <name>
+      [--registry=<registry> --namespace=<namespace]
+      [--skip-crd-check] <name>
   mlt build [--watch]
   mlt deploy [--no-push] [-i | --interactive]
-      [--retries=<retries>] [<kube_spec>]
+      [--retries=<retries>] [--skip-crd-check] [<kube_spec>]
   mlt undeploy
   mlt (template | templates) list [--template-repo=<repo>]
 
@@ -34,12 +35,14 @@ Options:
   --template=<template>     Template name for app
                             initialization [default: hello-world].
   --template-repo=<repo>    Git URL of template repository.
-                            [default: git@github.com:IntelAI/mlt.git]
+                            [default: https://github.com/IntelAI/mlt]
   --registry=<registry>     Container registry to use.
                             If none is set, will attempt to use gcloud.
   --namespace=<namespace>   Kubernetes Namespace to use.
                             If none is set, will attempt to create or
                             use a namespace identical to username.
+  --skip-crd-check          To avoid crd check during mlt init
+                            [default: False].
   --retries=<retries>       Number of times to connect to a pod interactively.
                             Waits 1 second between retrying.
                             [default: 10]
@@ -53,9 +56,11 @@ Options:
   --watch                   Watch project directory and build on file changes
   --no-push                 Deploy your project to kubernetes using the same
                             image from your last run.
+
 """
-from docopt import docopt
 import re
+from docopt import docopt
+
 from mlt.commands import (BuildCommand, DeployCommand, InitCommand,
                           TemplatesCommand, UndeployCommand)
 

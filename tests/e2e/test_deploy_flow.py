@@ -17,16 +17,23 @@
 #
 # SPDX-License-Identifier: EPL-2.0
 #
+import os
+import pytest
 
 from test_utils.e2e_commands import CommandTester
+from test_utils.files import create_work_dir
+
 
 # NOTE: you need to deploy first before you deploy with --no-push
 # otherwise you have no image to use to make new container from
 
-
-def test_simple_deploy(session_setup_teardown):
+@pytest.mark.parametrize('template',
+                         filter(lambda x: os.path.isdir(
+                             os.path.join('mlt-templates', x)),
+                             os.listdir('mlt-templates')))
+def test_simple_deploy(template, session_setup_teardown):
     commands = CommandTester(session_setup_teardown)
-    commands.init()
+    commands.init(template)
     commands.build()
     commands.deploy()
     commands.undeploy()
@@ -48,3 +55,4 @@ def test_watch_build_and_deploy_no_push(session_setup_teardown):
     commands.deploy()
     commands.deploy(no_push=True)
     commands.undeploy()
+

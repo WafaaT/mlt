@@ -39,10 +39,15 @@ class DeployCommand(Command):
         build_helpers.verify_build(self.args)
 
     def action(self):
+        skip_crd_check = self.args['--skip-crd-check']
+        if not skip_crd_check:
+            kubernetes_helpers.check_crds(exit_on_failure=True)
+
         if self.args['--no-push']:
             print("Skipping image push")
         else:
             self._push()
+
         self._deploy_new_container()
 
     def _push(self):
@@ -124,7 +129,8 @@ class DeployCommand(Command):
                     template = Template(f.read())
                 out = template.substitute(
                     image=remote_container_name,
-                    app=app_name, run=str(uuid.uuid4()))
+                    app=app_name, run=str(uuid.uuid4()),
+                    **config_helpers.get_template_parameters(self.config))
 
                 interactive, out = self._check_for_interactive_deployment(
                     out, filename)
@@ -215,8 +221,7 @@ class DeployCommand(Command):
         self.template_location['metadata'] = {'labels': {'debug': 'true'}}
         self.containers_location[0].update(
             {'command':
-             ["/bin/bash", "-c",
-              "trap : TERM INT; sleep infinity & wait"]})
+             ["/bin/bash", "-c", "trap : TERM INT; sleep infinity & wait"]})
         return json.dumps(data)
 
     def _find_metadata_and_container_spec(self, data):

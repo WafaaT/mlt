@@ -24,9 +24,9 @@ e2e scenarios in the future with the least amount of code duplication.
 """
 import json
 import os
-import shutil
 import time
-from subprocess import PIPE, Popen
+import uuid
+from subprocess import Popen
 from mlt.utils.process_helpers import run, run_popen
 from project import basedir
 
@@ -60,20 +60,23 @@ class CommandTester(object):
             catalog_call = 'curl --noproxy \"*\"  registry:5000/v2/_catalog'
         return catalog_call
 
-    def init(self):
+    def init(self, template='hello-world'):
         p = Popen(
             ['mlt', 'init', '--registry={}'.format(self.registry),
              '--template-repo={}'.format(basedir()),
-             '--namespace={}'.format(self.namespace), self.app_name],
+             '--namespace={}'.format(self.namespace),
+             '--template={}'.format(template), self.app_name],
             cwd=self.workdir)
         assert p.wait() == 0
         assert os.path.isfile(self.mlt_json)
         with open(self.mlt_json) as f:
-            assert json.loads(f.read()) == {
+            standard_configs = {
                 'namespace': self.namespace,
                 'name': self.app_name,
                 'registry': self.registry
             }
+            actual_configs = json.loads((f.read()))
+            assert dict(actual_configs, **standard_configs) == actual_configs
         # verify we created a git repo with our project init
         assert "On branch master" in run(
             "git --git-dir={}/.git --work-tree={} status".format(
@@ -107,7 +110,7 @@ class CommandTester(object):
         with open(self.build_json) as f:
             build_data = json.loads(f.read())
             assert 'last_container' in build_data and \
-                'last_build_duration' in build_data
+                   'last_build_duration' in build_data
             # verify that we created a docker image
             assert run_popen(
                 "docker image inspect {}".format(build_data['last_container']),
@@ -129,7 +132,7 @@ class CommandTester(object):
             with open(self.deploy_json) as f:
                 deploy_data = json.loads(f.read())
                 assert 'last_push_duration' in deploy_data and \
-                    'last_remote_container' in deploy_data
+                       'last_remote_container' in deploy_data
             # verify that the docker image has been pushed to our registry
             # need to decode because in python3 this output is in bytes
             assert 'true' in run_popen(
