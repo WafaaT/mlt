@@ -18,37 +18,33 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
-from test_utils.files import create_work_dir
 from test_utils.e2e_commands import CommandTester
 
 # NOTE: you need to deploy first before you deploy with --no-push
 # otherwise you have no image to use to make new container from
 
 
-def test_simple_deploy():
-    with create_work_dir() as workdir:
-        commands = CommandTester(workdir)
-        commands.init()
-        commands.build()
-        commands.deploy()
-        commands.undeploy()
+def test_simple_deploy(session_setup_teardown):
+    commands = CommandTester(session_setup_teardown)
+    commands.init()
+    commands.build()
+    commands.deploy()
+    commands.undeploy()
 
 
-def test_no_push_deploy():
-    with create_work_dir() as workdir:
-        commands = CommandTester(workdir)
-        commands.init()
-        commands.build()
-        commands.deploy()
-        commands.deploy(no_push=True)
-        commands.undeploy()
+def test_no_push_deploy(session_setup_teardown):
+    commands = CommandTester(session_setup_teardown)
+    commands.init()
+    commands.build()
+    commands.deploy()
+    commands.deploy(no_push=True)
+    commands.undeploy()
 
 
-def test_watch_build_and_deploy_no_push():
-    with create_work_dir() as workdir:
-        commands = CommandTester(workdir)
-        commands.init()
-        commands.build(watch=True)
-        commands.deploy()
-        commands.deploy(no_push=True)
-        commands.undeploy()
+def test_watch_build_and_deploy_no_push(session_setup_teardown):
+    commands = CommandTester(session_setup_teardown)
+    commands.init()
+    commands.build(watch=True)
+    commands.deploy()
+    commands.deploy(no_push=True)
+    commands.undeploy()

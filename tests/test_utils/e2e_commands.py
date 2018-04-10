@@ -22,29 +22,27 @@ This file will contain a command class for easy testing of different
 e2e scenarios by other test files. Goal is to make it easy to add further
 e2e scenarios in the future with the least amount of code duplication.
 """
-import getpass
 import json
 import os
 import shutil
 import time
 from subprocess import PIPE, Popen
-import uuid
-
 from mlt.utils.process_helpers import run, run_popen
-
 from project import basedir
 
 
 class CommandTester(object):
-    def __init__(self, workdir):
+    def __init__(self, session_setup_teardown):
+        job_setup = session_setup_teardown
         # just in case tests fail, want a clean namespace always
-        self.workdir = workdir
-        self.registry = os.getenv('MLT_REGISTRY', 'localhost:5000')
-        self.registry_catalog_call = self._fetch_registry_catalog_call()
-        self.app_name = str(uuid.uuid4())[:10]
-        self.namespace = getpass.getuser() + '-' + self.app_name
-
+        self.workdir = job_setup['workdir']
+        print(" {}".format(self.workdir))
+        self.app_name = job_setup['app_name']
+        self.namespace = job_setup['namespace']
         self.project_dir = os.path.join(self.workdir, self.app_name)
+        self.registry = os.getenv('MLT_REGISTRY',
+                                  'localhost:5000')
+        self.registry_catalog_call = self._fetch_registry_catalog_call()
         self.mlt_json = os.path.join(self.project_dir, 'mlt.json')
         self.build_json = os.path.join(self.project_dir, '.build.json')
         self.deploy_json = os.path.join(self.project_dir, '.push.json')

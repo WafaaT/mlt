@@ -19,10 +19,15 @@
 #
 
 from mock import MagicMock
+from test_utils.files import create_work_dir
+from mlt.utils.process_helpers import run, run_popen
+import uuid
+import getpass
 import inspect
 import pytest
-import os
 import sys
+import os
+import shutil
 
 
 # enable test_utils to be used in tests via `from test_utils... import ...
@@ -81,3 +86,25 @@ def patch(monkeypatch):
         return m
 
     return wrapper
+
+@pytest.fixture
+def session_setup_teardown():
+    """ pytest setup and teardown."""
+    with create_work_dir() as workdir:
+        sess_setup = dict()
+        sess_setup['workdir'] = workdir
+        sess_setup['app_name'] = str(uuid.uuid4())[:10]
+        sess_setup['namespace'] = getpass.getuser() + '-' \
+                                  + sess_setup['app_name']
+
+    yield sess_setup
+    
+    # remove directory when done
+    shutil.rmtree(sess_setup['workdir'])
+    # tear down remaining resources
+    current_namespace = run_popen("kubectl get jobs --namespace={}".format(
+        sess_setup['namespace']), shell=True).wait()
+    if current_namespace != 0:
+        run(["kubectl", "--namespace", sess_setup['namespace'],
+             "delete", "-f", "k8s"])
+
