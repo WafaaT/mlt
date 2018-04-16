@@ -36,7 +36,6 @@ class CommandTester(object):
         job_setup = session_setup_teardown
         # just in case tests fail, want a clean namespace always
         self.workdir = job_setup['workdir']
-        print(" {}".format(self.workdir))
         self.app_name = job_setup['app_name']
         self.namespace = job_setup['namespace']
         self.project_dir = os.path.join(self.workdir, self.app_name)

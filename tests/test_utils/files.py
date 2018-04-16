@@ -28,7 +28,6 @@ def create_work_dir():
     try:
         yield workdir
     finally:
-    	pass
         # even on error we still need to remove dir when done
         # https://docs.python.org/2/library/tempfile.html#tempfile.mkdtemp
-        #shutil.rmtree(workdir)
+        shutil.rmtree(workdir)
