@@ -25,15 +25,13 @@ e2e scenarios in the future with the least amount of code duplication.
 import json
 import os
 import time
-import uuid
 from subprocess import Popen
 from mlt.utils.process_helpers import run, run_popen
 from project import basedir
 
 
 class CommandTester(object):
-    def __init__(self, session_setup_teardown):
-        job_setup = session_setup_teardown
+    def __init__(self, job_setup):
         # just in case tests fail, want a clean namespace always
         self.workdir = job_setup['workdir']
         self.app_name = job_setup['app_name']

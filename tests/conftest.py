@@ -19,10 +19,6 @@
 #
 
 from mock import MagicMock
-from test_utils.files import create_work_dir
-from mlt.utils.process_helpers import run, run_popen
-import uuid
-import getpass
 import inspect
 import pytest
 import sys
@@ -86,35 +82,4 @@ def patch(monkeypatch):
 
     return wrapper
 
-def setup(workdir):
-    # setup the test session parameters
-    
-    app_name = str(uuid.uuid4())[:10]
-    sess_setup = {
-    'app_name': app_name,
-    'workdir': workdir,
-    'app_name': app_name,
-    'namespace': getpass.getuser() + '-' + app_name
-    }
-    return sess_setup
-
-def teardown(namespace):
-    # tear down remaining resources
-    try:
-        run(["kubectl", "--namespace", namespace, "delete", "-f", "k8s"])
-    except SystemExit:
-        print("Tearing down test session K8s resources: \
-         namespace {} not found".format(namespace))
-
-
-@pytest.fixture(autouse=True)
-def session_setup_teardown():
-    """ pytest setup and teardown."""
-    with create_work_dir() as workdir:
-        try:
-            sess_setup = setup(workdir)
-            yield sess_setup
-
-        finally:
-            teardown(sess_setup['namespace'])
 
