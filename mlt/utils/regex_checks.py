@@ -18,10 +18,21 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
-import os
-from ._version import get_versions
+import re
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-__version__ = get_versions()['version']
-del get_versions
+def k8s_name_is_valid(name, resource_type):
+    """
+    Returns True if the name is a valid name for the specified
+    Kuberentes resource.
+    """
+    k8s_resources = {
+        "namespace": "^[a-z0-9\.\-]{1,253}$",
+        "pod": "[a-z0-9]([-a-z0-9]*[a-z0-9])?$",
+    }
+
+    # default regex to use
+    k8s_default = "^[a-z0-9\.\-]{1,253}$"
+
+    k8s_regex = k8s_resources.get(resource_type, k8s_default)
+    return re.match(k8s_regex, name) is not None

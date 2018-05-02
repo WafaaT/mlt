@@ -1,5 +1,5 @@
 # mlt
-Machine Learning Container Tool
+Machine Learning Container Templates
 
 > MLT: it's like the keras of kubernetes
 >
@@ -29,16 +29,22 @@ From here, it is a quick step to redeploy the Kubernetes objects, through `mlt d
 ## Build
 
 Prerequisites:
-- git
-- python
-- pip
-- tox
-- virtualenv
-- TFJob operator (for the distributed tensorflow templates)
+- [Docker](https://docs.docker.com/install/)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+- [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+- [python](https://www.python.org/downloads/)
+- [pip](https://pip.pypa.io/en/stable/installing/)
+- [TFJob operator](https://github.com/kubeflow/tf-operator#installing-the-tfjob-crd-and-operator-on-your-k8s-cluster) (for the distributed tensorflow templates)
 
-### Installation
 
-Local pip installation:
+## Installation
+
+### Install from [PyPI](https://pypi.org/)
+```bash
+$ pip install mlt
+```
+
+### Installation from Source
 
 ```bash
 $ git clone git@github.com:IntelAI/mlt.git
@@ -54,14 +60,20 @@ $ cd mlt
 $ pip install .
 ```
 
+## Create local Python distributions
+```bash
+$ make dist
+$ cd dist
+$ ls mlt*
+mlt-0.1.0a1+12.gf49c412.dirty-py2.py3-none-any.whl
+```
+
 ## Usage summary
 
 ### Sample mlt deployment
 [![asciicast](https://asciinema.org/a/171353.png)](https://asciinema.org/a/171353)
 
 ```bash
-# cd outside of the mlt tree
-$ cd ..
 $ mlt templates list
 Template        Description
 --------------  ----------------------------------------------------------------------------------------------

@@ -67,10 +67,13 @@ class DeployCommand(Command):
         progress_bar.duration_progress(
             'Pushing ', last_push_duration,
             lambda: self.push_process.poll() is not None)
+
+        # If the push fails, get the stdout and error message and display them
+        # to the user, with the error message in red.
         if self.push_process.poll() != 0:
-            push_error = self.push_process.communicate()
-            print(colored(push_error[0], 'red'))
-            print(colored(push_error[1], 'red'))
+            push_stdout, push_error = self.push_process.communicate()
+            print(push_stdout.decode("utf-8"))
+            print(colored(push_error.decode("utf-8"), 'red'))
             sys.exit(1)
 
         with open('.push.json', 'w') as f:
@@ -101,6 +104,15 @@ class DeployCommand(Command):
         process_helpers.run(
             ["docker", "tag", self.container_name, self.remote_container_name])
 
+    @staticmethod
+    def _update_app_run_id(app_run_id):
+        with open('.push.json', 'r+') as json_file:
+            data = json.load(json_file)
+            data['app_run_id'] = app_run_id
+            json_file.seek(0)
+            json.dump(data, json_file, indent=2)
+            json_file.truncate()
+
     def _deploy_new_container(self):
         """Substitutes image, app, run data into k8s-template selected.
            Can also launch user into interactive shell with --interactive flag
@@ -122,6 +134,7 @@ class DeployCommand(Command):
         # replaces things with $ with the vars from template.substitute
         # also patches deployment if interactive mode is set
         self.interactive_deployment_found = False
+        app_run_id = str(uuid.uuid4())
         for path, dirs, filenames in os.walk("k8s-templates"):
             self.file_count = len(filenames)
             for filename in filenames:
@@ -129,7 +142,7 @@ class DeployCommand(Command):
                     template = Template(f.read())
                 out = template.substitute(
                     image=remote_container_name,
-                    app=app_name, run=str(uuid.uuid4()),
+                    app=app_name, run=app_run_id,
                     **config_helpers.get_template_parameters(self.config))
 
                 interactive, out = self._check_for_interactive_deployment(
@@ -141,6 +154,7 @@ class DeployCommand(Command):
             print("\nInspect created objects by running:\n"
                   "$ kubectl get --namespace={} all\n".format(self.namespace))
 
+        self._update_app_run_id(app_run_id)
         # After everything is deployed we'll make a kubectl exec
         # call into our debug container if interactive mode
         if self.args["--interactive"] and self.interactive_deployment_found:
@@ -282,6 +296,7 @@ class DeployCommand(Command):
                 tries, self.args['--retries']))
             time.sleep(1)
 
+        # Get shell to the specified pod running in the user's namespace
         process_helpers.run_popen(
-            ["kubectl", "exec", "-it", podname,
+            ["kubectl", "exec", "-it", podname, "--namespace", self.namespace,
              "/bin/bash"], stdout=None, stderr=None).wait()
