@@ -18,12 +18,11 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
-from mock import MagicMock
 import inspect
+import os
 import pytest
 import sys
-import os
-import shutil
+from mock import MagicMock
 
 # enable test_utils to be used in tests via `from test_utils... import ...
 sys.path.append(os.path.join(os.path.dirname(__file__), 'test_utils'))
@@ -81,5 +80,3 @@ def patch(monkeypatch):
         return m
 
     return wrapper
-
-
