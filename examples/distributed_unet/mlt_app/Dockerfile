@@ -1,6 +1,3 @@
-#
-# -*- coding: utf-8 -*-
-#
 # Copyright (c) 2018 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,10 +15,14 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
-from mlt.commands.base import Command  # noqa
-from mlt.commands.build import BuildCommand  # noqa
-from mlt.commands.deploy import DeployCommand  # noqa
-from mlt.commands.init import InitCommand  # noqa
-from mlt.commands.status import StatusCommand  # noqa
-from mlt.commands.templates import TemplatesCommand  # noqa
-from mlt.commands.undeploy import UndeployCommand  # noqa
+FROM python:3
+
+ADD requirements.txt /src/deps/requirements.txt
+RUN pip install -r /src/deps/requirements.txt
+
+WORKDIR /src/app
+ADD . /src/app
+
+RUN pycodestyle -v .
+
+ENTRYPOINT [ "python", "test_dist.py", "--is_sync", "0" ]

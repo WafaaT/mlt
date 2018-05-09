@@ -1,6 +1,3 @@
-#
-# -*- coding: utf-8 -*-
-#
 # Copyright (c) 2018 Intel Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,10 +15,19 @@
 # SPDX-License-Identifier: EPL-2.0
 #
 
-from mlt.commands.base import Command  # noqa
-from mlt.commands.build import BuildCommand  # noqa
-from mlt.commands.deploy import DeployCommand  # noqa
-from mlt.commands.init import InitCommand  # noqa
-from mlt.commands.status import StatusCommand  # noqa
-from mlt.commands.templates import TemplatesCommand  # noqa
-from mlt.commands.undeploy import UndeployCommand  # noqa
+.PHONY: dependencies
+
+all: main
+
+main: main.py
+	@echo "Should run linting and tests before submitting application"
+
+build:
+	docker build --build-arg HTTP_PROXY=${HTTP_PROXY} --build-arg HTTPS_PROXY=${HTTPS_PROXY} --build-arg http_proxy=${http_proxy} --build-arg https_proxy=${https_proxy} -t ${CONTAINER_NAME} .
+
+status:
+	@echo "PyTorch Job:"
+	-@kubectl get pytorchjob ${JOB_NAME} --namespace ${NAMESPACE} || echo "The job may have been undeployed."
+	@echo ""
+	@echo "Pods:"
+	@kubectl get pods --namespace ${NAMESPACE} -o wide -a -l pytorch_job_name=${JOB_NAME}
