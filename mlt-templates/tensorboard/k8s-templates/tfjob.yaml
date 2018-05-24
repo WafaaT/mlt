@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Deployment
+metadata:
+  name: $app-$run
+  labels:
+    mlt-app-name: $app
+spec:
+  template:
+    spec:
+      containers:
+        - image: $image
+        env:
+        - name: TB_DIR_PATH
+          value: $path
+      command : ["/bin/sh","-c"]
+      args : ["tensorboard --logdir $path"]
+      restartPolicy: OnFailure
+---
+apiVersion: batch/v1
+kind: Service
+metadata:
+  name: tb-service-$app-$run
+spec:
+  ports:
+     -  port: 6006
+        protocol: TCP
+        targetPort: 6006
+  selector:
+    app: $app
+  type: LoadBalancer
