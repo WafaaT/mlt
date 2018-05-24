@@ -19,15 +19,15 @@
 
 all: main
 
-main:
+main: main.py
 	@echo "Should run linting and tests before submitting application"
 
 build:
 	docker build --build-arg HTTP_PROXY=${HTTP_PROXY} --build-arg HTTPS_PROXY=${HTTPS_PROXY} --build-arg http_proxy=${http_proxy} --build-arg https_proxy=${https_proxy} -t ${CONTAINER_NAME} .
 
 status:
-	@echo "TB Job:"
-	-@kubectl get tbjob ${JOB_NAME} --namespace ${NAMESPACE} || echo "The job may have been undeployed."
+	@echo "TF Job:"
+	-@kubectl get tfjob ${JOB_NAME} --namespace ${NAMESPACE} || echo "The job may have been undeployed."
 	@echo ""
 	@echo "Pods:"
-	@kubectl get pods --namespace ${NAMESPACE} -o wide -a -l tb_job_name=${JOB_NAME}
+	@kubectl get pods --namespace ${NAMESPACE} -o wide -a -l tf_job_name=${JOB_NAME}
