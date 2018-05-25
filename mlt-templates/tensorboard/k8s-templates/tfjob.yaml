@@ -9,11 +9,12 @@ spec:
     spec:
       containers:
         - image: $image
-        env:
-        - name: TB_DIR_PATH
-          value: $path
-      command : ["/bin/sh","-c"]
-      args : ["tensorboard --logdir $path"]
+          name: tensorflow
+          env:
+              - name: TB_DIR_PATH
+                value: $path
+          command : ["/bin/sh","-c"]
+          args : ["tensorboard --logdir $path"]
       restartPolicy: OnFailure
 ---
 apiVersion: batch/v1
