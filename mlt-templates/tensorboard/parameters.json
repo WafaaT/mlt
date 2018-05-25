@@ -1,5 +1,5 @@
 {
   "template_parameters" : [
-    { "name": "path", "value": "TB logs directory path." }
+    { "name": "path", "value": "path to tensorboard logs directory" }
   ]
 }
