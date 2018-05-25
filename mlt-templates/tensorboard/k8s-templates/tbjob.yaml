@@ -1,28 +1,29 @@
-apiVersion: batch/v1
+apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: tb-$app-$run
-  labels:
-    mlt-app-name: $app
 spec:
+  replicas: 1
   template:
+    metadata:
+      labels:
+        mlt-app-name: $app
     spec:
       containers:
         - image: $image
           name: tensorflow
           command : ["/bin/sh","-c"]
-          args : ["tensorboard --logdir " + $path]
-      restartPolicy: OnFailure
+          args : ["tensorboard --logdir $path; run -d debian sleep 300"]
 ---
-apiVersion: batch/v1
+apiVersion: v1
 kind: Service
 metadata:
-  name: tb-service-$app-$run
+  name: service-$app-$run
 spec:
   ports:
      -  port: 6006
         protocol: TCP
         targetPort: 6006
   selector:
-    app: $app
+    mlt-app-name: $app
   type: LoadBalancer
