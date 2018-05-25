@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Deployment
 metadata:
-  name: $app-$run
+  name: tb-$app-$run
   labels:
     mlt-app-name: $app
 spec:
